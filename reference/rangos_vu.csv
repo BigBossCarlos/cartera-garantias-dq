@@ -1,29 +1,29 @@
 zona,tipologia,moneda,vu_min,vu_max,fuente
-GAM_CENTRO,Terreno baldío urbano,CRC,,,
-GAM_CENTRO,Casa de habitación,CRC,,,
-GAM_CENTRO,Apartamento,USD,,,
-GAM_CENTRO,Condominio horizontal,USD,,,
-GAM_CENTRO,Local comercial,CRC,,,
-GAM_CENTRO,Bodega o nave industrial,USD,,,
-GAM_CENTRO,Edificio de oficinas,USD,,,
-GAM_PERIFERIA,Terreno baldío urbano,CRC,,,
-GAM_PERIFERIA,Casa de habitación,CRC,,,
-GAM_PERIFERIA,Apartamento,USD,,,
-GAM_PERIFERIA,Condominio horizontal,USD,,,
-GAM_PERIFERIA,Local comercial,CRC,,,
-GAM_PERIFERIA,Bodega o nave industrial,USD,,,
-CIUDAD_INTERMEDIA,Terreno baldío urbano,CRC,,,
-CIUDAD_INTERMEDIA,Terreno baldío rural,CRC,,,
-CIUDAD_INTERMEDIA,Casa de habitación,CRC,,,
-CIUDAD_INTERMEDIA,Local comercial,CRC,,,
-CIUDAD_INTERMEDIA,Bodega o nave industrial,USD,,,
-CIUDAD_INTERMEDIA,Finca agrícola,CRC,,,
-RURAL,Terreno baldío urbano,CRC,,,
-RURAL,Terreno baldío rural,CRC,,,
-RURAL,Casa de habitación,CRC,,,
-RURAL,Finca agrícola,CRC,,,
-COSTA,Terreno baldío urbano,CRC,,,
-COSTA,Terreno baldío rural,CRC,,,
-COSTA,Casa de habitación,CRC,,,
-COSTA,Apartamento,USD,,,
-COSTA,Condominio horizontal,USD,,,
+GAM_CENTRO,Casa de habitación,CRC,400000,1350000,Criterio experto ajustado
+GAM_CENTRO,Apartamento,CRC,500000,1600000,Criterio experto ajustado
+GAM_CENTRO,Terreno baldío urbano,CRC,100000,550000,Criterio experto ajustado
+GAM_CENTRO,Edificio de oficinas,CRC,400000,1500000,Criterio experto ajustado
+GAM_CENTRO,Local comercial,CRC,350000,1400000,Criterio experto ajustado
+GAM_CENTRO,Bodega o nave industrial,CRC,225000,750000,Criterio experto ajustado
+GAM_CENTRO,Terreno baldío urbano,USD,220,1200,Criterio experto ajustado
+GAM_PERIFERIA,Casa de habitación,CRC,250000,950000,Criterio experto ajustado
+GAM_PERIFERIA,Apartamento,CRC,350000,1200000,Criterio experto ajustado
+GAM_PERIFERIA,Terreno baldío urbano,CRC,50000,300000,Criterio experto ajustado
+GAM_PERIFERIA,Local comercial,CRC,250000,900000,Criterio experto ajustado
+GAM_PERIFERIA,Bodega o nave industrial,CRC,180000,650000,Criterio experto ajustado
+GAM_PERIFERIA,Terreno baldío urbano,USD,110,650,Criterio experto ajustado
+CIUDAD_INTERMEDIA,Casa de habitación,CRC,200000,750000,Criterio experto ajustado
+CIUDAD_INTERMEDIA,Terreno baldío urbano,CRC,35000,180000,Criterio experto ajustado
+CIUDAD_INTERMEDIA,Local comercial,CRC,200000,800000,Criterio experto ajustado
+CIUDAD_INTERMEDIA,Terreno baldío urbano,USD,75,390,Criterio experto ajustado
+RURAL,Casa de habitación,CRC,150000,550000,Criterio experto ajustado
+RURAL,Terreno baldío rural,CRC,15000,100000,Criterio experto ajustado
+RURAL,Finca agrícola,CRC,1500,30000,Criterio experto ajustado
+RURAL,Local comercial,CRC,150000,500000,Criterio experto ajustado
+RURAL,Finca agrícola,USD,3,65,Criterio experto ajustado
+COSTA,Casa de habitación,USD,650,3250,Criterio experto ajustado
+COSTA,Apartamento,USD,800,4000,Criterio experto ajustado
+COSTA,Terreno baldío urbano,USD,75,750,Criterio experto ajustado
+COSTA,Local comercial,USD,500,2500,Criterio experto ajustado
+COSTA,Casa de habitación,CRC,300000,1500000,Criterio experto ajustado
+COSTA,Terreno baldío urbano,CRC,35000,345000,Criterio experto ajustado
