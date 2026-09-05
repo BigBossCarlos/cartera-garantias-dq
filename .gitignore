@@ -1,0 +1,15 @@
+# Entorno
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Salidas regenerables (los crudos sintéticos sí se versionan)
+data/output/
+*.duckdb
+*.duckdb.wal
+
+# Power BI
+*.pbix.tmp
+.ipynb_checkpoints/

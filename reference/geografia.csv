@@ -1,0 +1,36 @@
+provincia,canton,distrito,zona,lat_centroide,lon_centroide,radio_km,verificado
+San José,San José,Carmen,GAM_CENTRO,9.9370,-84.0740,2,NO
+San José,Escazú,Escazú,GAM_CENTRO,9.9190,-84.1400,4,NO
+San José,Santa Ana,Santa Ana,GAM_CENTRO,9.9330,-84.1830,4,NO
+San José,Curridabat,Curridabat,GAM_CENTRO,9.9170,-84.0330,3,NO
+San José,Montes de Oca,San Pedro,GAM_CENTRO,9.9330,-84.0500,3,NO
+San José,Tibás,San Juan,GAM_CENTRO,9.9600,-84.0800,3,NO
+San José,Desamparados,Desamparados,GAM_PERIFERIA,9.9000,-84.0670,4,NO
+San José,Goicoechea,Guadalupe,GAM_PERIFERIA,9.9500,-84.0500,3,NO
+San José,Pérez Zeledón,San Isidro de El General,CIUDAD_INTERMEDIA,9.3750,-83.7000,12,NO
+San José,Puriscal,Santiago,RURAL,9.8500,-84.3170,15,NO
+Alajuela,Alajuela,Alajuela,GAM_CENTRO,10.0160,-84.2120,4,NO
+Alajuela,Grecia,Grecia,CIUDAD_INTERMEDIA,10.0730,-84.3130,8,NO
+Alajuela,San Ramón,San Ramón,CIUDAD_INTERMEDIA,10.0880,-84.4700,8,NO
+Alajuela,San Carlos,Quesada,CIUDAD_INTERMEDIA,10.3230,-84.4300,10,NO
+Alajuela,Atenas,Atenas,RURAL,9.9780,-84.3800,8,NO
+Alajuela,Upala,Upala,RURAL,10.8970,-85.0170,20,NO
+Cartago,Cartago,Oriental,GAM_CENTRO,9.8640,-83.9190,3,NO
+Cartago,La Unión,Tres Ríos,GAM_PERIFERIA,9.9070,-83.9870,4,NO
+Cartago,Paraíso,Paraíso,GAM_PERIFERIA,9.8380,-83.8670,6,NO
+Cartago,Turrialba,Turrialba,CIUDAD_INTERMEDIA,9.9050,-83.6830,10,NO
+Heredia,Heredia,Heredia,GAM_CENTRO,9.9980,-84.1170,3,NO
+Heredia,Belén,San Antonio,GAM_CENTRO,9.9780,-84.1830,3,NO
+Heredia,Santo Domingo,Santo Domingo,GAM_PERIFERIA,9.9800,-84.0900,3,NO
+Heredia,San Rafael,San Rafael,GAM_PERIFERIA,10.0160,-84.0900,4,NO
+Heredia,Sarapiquí,Puerto Viejo,RURAL,10.4570,-83.9900,20,NO
+Guanacaste,Liberia,Liberia,CIUDAD_INTERMEDIA,10.6340,-85.4370,8,NO
+Guanacaste,Nicoya,Nicoya,CIUDAD_INTERMEDIA,10.1480,-85.4520,10,NO
+Guanacaste,Santa Cruz,Tamarindo,COSTA,10.3000,-85.8400,8,NO
+Guanacaste,Carrillo,Sardinal,COSTA,10.5300,-85.6700,10,NO
+Puntarenas,Puntarenas,Puntarenas,CIUDAD_INTERMEDIA,9.9770,-84.8300,5,NO
+Puntarenas,Garabito,Jacó,COSTA,9.6150,-84.6280,8,NO
+Puntarenas,Quepos,Quepos,COSTA,9.4320,-84.1620,10,NO
+Limón,Limón,Limón,CIUDAD_INTERMEDIA,9.9910,-83.0360,6,NO
+Limón,Pococí,Guápiles,CIUDAD_INTERMEDIA,10.2170,-83.7830,10,NO
+Limón,Talamanca,Cahuita,COSTA,9.7370,-82.8430,12,NO

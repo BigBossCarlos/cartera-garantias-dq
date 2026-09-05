@@ -1,0 +1,10 @@
+tipologia,requiere_construccion,cobertura_min,cobertura_max,moneda_habitual,activa
+Terreno baldío urbano,NO,0.00,0.00,CRC,SI
+Terreno baldío rural,NO,0.00,0.00,CRC,SI
+Casa de habitación,SI,0.10,0.70,CRC,SI
+Apartamento,SI,0.30,3.00,USD,SI
+Condominio horizontal,SI,0.20,0.80,USD,SI
+Local comercial,SI,0.30,2.00,CRC,SI
+Bodega o nave industrial,SI,0.20,0.70,USD,SI
+Edificio de oficinas,SI,0.50,6.00,USD,SI
+Finca agrícola,OPCIONAL,0.00,0.15,CRC,SI
