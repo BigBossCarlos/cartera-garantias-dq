@@ -89,10 +89,17 @@ Todos los campos de la tabla de avalúos, más:
 |---|---|
 | `corte` | Corte de origen |
 | `id_avaluo` | Avalúo afectado |
+| `numero_finca` | Desambigua los pares R-01, que comparten `id_avaluo` |
 | `rule_id` | Regla incumplida |
-| `campo` | Campo evaluado |
+| `accion` | `BLOQUEA` o `REVISA`, tomada del catálogo |
+| `campo` | Campo o campos evaluados |
 | `valor_observado` | Lo que traía el dato |
-| `condicion_esperada` | Lo que debía cumplir |
+| `condicion_esperada` | Lo que debía cumplir, con el valor de referencia concreto |
+
+`condicion_esperada` no repite el texto de la regla: dice el número que faltaba.
+Para R-03 trae el total calculado; para R-07, el rango de esa zona y moneda; para
+R-06, la distancia observada contra el radio permitido. Un revisor puede corregir
+el dato leyendo solo esta columna.
 
 ### `control_cifras.csv` — una fila por corte
 
@@ -102,7 +109,11 @@ Todos los campos de la tabla de avalúos, más:
 | `recibidos` | Filas leídas del archivo |
 | `procesados` | Filas evaluadas |
 | `confiable` · `revisar` · `no_confiable` | Conteo por nivel |
+| `incidencias` | Total de incumplimientos del corte |
 | `cuadra` | `SI` si recibidos = procesados = suma de niveles |
+
+Si `cuadra` da `NO`, el validador termina con error y no publica. Es preferible no
+entregar dato a entregar dato que no cuadra.
 
 ---
 
@@ -208,3 +219,34 @@ Con 20 pares en marzo y 2 nuevos en abril, la diferencia es de una o dos decenas
 ### Parámetros invariantes
 
 Independientemente de los rangos que contenga `rangos_vu.csv`, el generador garantiza: 4.000 avalúos por corte; 1.200 con incumplimiento en marzo (320 `NO_CONFIABLE`, 880 `REVISAR`); 720 corregidos, 360 persistentes, 120 que salen; 120 nuevos; 480 con incumplimiento en abril. La distribución por regla sí varía: si una combinación no tiene rango, R-07 no puede sembrarse ahí y el cupo pasa a R-08.
+
+---
+
+## 9. El catálogo dirige al validador
+
+`validar.py` lee `reference/reglas_datos.csv` y aplica únicamente las reglas con
+`activa = SI`. Las diez están implementadas: activar R-09 o R-10 es cambiar una
+celda del CSV, sin tocar código. Si el catálogo activa una regla que no existe en
+el código, el validador se detiene con el nombre de la regla faltante.
+
+Es la consecuencia práctica de sacar las constantes del código: quien responde por
+el dato puede encender o apagar un control sin depender de quien programa.
+
+### Cobertura de reglas
+
+No toda regla puede evaluarse en toda la cartera. `avaluos_validados.csv` guarda
+`NO_APLICA` cuando la evaluación no fue posible, y esa cifra es un indicador de
+gobierno por sí misma:
+
+| Regla | Por qué no siempre aplica |
+|---|---|
+| R-03 | Falta algún componente del cálculo, normalmente por un R-02 previo |
+| R-04 | Tipología con `requiere_construccion = OPCIONAL`, como finca agrícola |
+| R-05 | Alguna de las tres fechas está ausente |
+| R-07 | No hay rango de referencia para esa zona, tipología y moneda |
+
+La cobertura de R-07 depende directamente de cuántas combinaciones tenga
+`rangos_vu.csv`. Con la tabla vacía, R-07 devuelve `NO_APLICA` en el 100 % de los
+casos y el resto del proyecto sigue funcionando. Ampliar el catálogo de rangos es
+la forma de subir esa cobertura, y el tablero debe mostrarla: una regla que solo
+cubre el 85 % de la cartera no puede presentarse como si cubriera todo.

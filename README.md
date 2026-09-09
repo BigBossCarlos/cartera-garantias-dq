@@ -15,8 +15,8 @@ está respaldada por avalúos confiables, y cuáles conviene atender primero?**
 | Fase | Estado |
 |---|---|
 | 1 · Fundamentos | Completa |
-| 2 · Datos | En curso |
-| 3 · Validación | Pendiente |
+| 2 · Datos | Completa |
+| 3 · Validación | En curso |
 | 4 · Modelo | Pendiente |
 | 5 · Entrega | Pendiente |
 
@@ -44,3 +44,16 @@ python src/generar.py
 Produce los dos cortes y los créditos en `data/raw/`, y el ground truth en `data/ground_truth/`.
 Es determinístico: misma semilla, mismos archivos. Los parámetros del experimento están en el
 bloque `PARÁMETROS DE SIMULACIÓN` del script y documentados en `docs/diccionario_datos.md`, sección 7.
+
+## Validar
+
+```bash
+python src/validar.py            # aplica las reglas activas del catálogo
+python src/probar_validador.py   # compara lo detectado contra el ground truth
+```
+
+`validar.py` produce `avaluos_validados.csv`, `incidencias.csv` y `control_cifras.csv`
+en `data/output/`. Si las cifras no cuadran, termina con error y no publica.
+
+Qué reglas se aplican lo decide `reference/reglas_datos.csv`, no el código: activar
+R-09 o R-10 es cambiar una celda de ese CSV.
