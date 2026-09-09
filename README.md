@@ -14,8 +14,8 @@ está respaldada por avalúos confiables, y cuáles conviene atender primero?**
 
 | Fase | Estado |
 |---|---|
-| 1 · Fundamentos | En curso |
-| 2 · Datos | Pendiente |
+| 1 · Fundamentos | Completa |
+| 2 · Datos | En curso |
 | 3 · Validación | Pendiente |
 | 4 · Modelo | Pendiente |
 | 5 · Entrega | Pendiente |
@@ -34,3 +34,13 @@ venv\Scripts\activate          # Windows
 pip install -r requirements.txt
 python src/verificar_referencias.py
 ```
+
+## Generar los datos
+
+```bash
+python src/generar.py
+```
+
+Produce los dos cortes y los créditos en `data/raw/`, y el ground truth en `data/ground_truth/`.
+Es determinístico: misma semilla, mismos archivos. Los parámetros del experimento están en el
+bloque `PARÁMETROS DE SIMULACIÓN` del script y documentados en `docs/diccionario_datos.md`, sección 7.

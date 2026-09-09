@@ -163,3 +163,48 @@ Ninguno vive en el código. Todos son discutibles con el negocio y por eso está
 | Semilla | 2026 |
 
 **Propensión a error por perito:** el generador asigna a cada perito una probabilidad distinta de introducir defectos, para que el indicador de tasa por perito tenga señal. Esa propensión vive en el generador, no en `peritos.csv`: es parámetro de simulación, no dato de referencia.
+
+---
+
+## 8. Ground truth
+
+El generador sabe qué defectos sembró. Lo exporta para que la Fase 3 pueda demostrar que el validador los encuentra todos, y la Fase 4 que la comparación entre cortes clasifica bien.
+
+### `data/ground_truth/incumplimientos_sembrados.csv`
+
+| Campo | Definición |
+|---|---|
+| `corte` | `2026-03` / `2026-04` |
+| `id_avaluo` | Tal como aparece en el archivo del corte |
+| `numero_finca` | Desambigua los pares R-01, que comparten `id_avaluo` |
+| `rule_id` | Regla que el avalúo incumple en ese corte |
+
+Un avalúo aparece una vez por regla que incumple. Incluye los incumplimientos **derivados**: un R-04 que no recalcula el total también genera R-03; un persistente cuya fecha de valor cruza el umbral de vigencia entre cortes también genera R-08.
+
+### `data/ground_truth/evolucion_esperada.csv`
+
+Una fila por avalúo, con `id_avaluo_marzo`, `id_avaluo_abril` y `categoria`:
+
+| Categoría | Significado |
+|---|---|
+| `CORREGIDO` | Incumplía en marzo, cumple en abril |
+| `PERSISTENTE` | Incumplía en marzo, sigue incumpliendo en abril |
+| `NUEVO` | Cumplía o no existía en marzo, incumple en abril |
+| `SALIO` | Incumplía en marzo, no está en abril |
+| `SALIO_CUMPLIENDO` | Cumplía en marzo, no está en abril |
+| `ENTRA_CUMPLIENDO` | No existía en marzo, cumple en abril |
+| `CUMPLE` | Cumple en ambos cortes |
+
+### Lo que el analista verá distinto: el efecto R-01
+
+El ground truth sigue a cada avalúo por su identidad real. El SQL de la Fase 4 solo puede seguirlo por `id_avaluo`. Ambos coinciden **excepto** en los pares R-01:
+
+- Cuando un par se corrige, el segundo avalúo recupera su identificador original, que nunca apareció en marzo. Por identificador parece una entrada nueva.
+- Cuando un par persiste, dos avalúos cuentan como un solo identificador.
+- Cuando en abril aparece un par nuevo, el identificador propio del segundo avalúo desaparece: parece una salida.
+
+Con 20 pares en marzo y 2 nuevos en abril, la diferencia es de una o dos decenas de registros en cada categoría. No es un error de ninguno de los dos: es la consecuencia inevitable de que la clave de negocio esté bajo sospecha. La Fase 4 debe reportarlo, no ajustarlo.
+
+### Parámetros invariantes
+
+Independientemente de los rangos que contenga `rangos_vu.csv`, el generador garantiza: 4.000 avalúos por corte; 1.200 con incumplimiento en marzo (320 `NO_CONFIABLE`, 880 `REVISAR`); 720 corregidos, 360 persistentes, 120 que salen; 120 nuevos; 480 con incumplimiento en abril. La distribución por regla sí varía: si una combinación no tiene rango, R-07 no puede sembrarse ahí y el cupo pasa a R-08.
