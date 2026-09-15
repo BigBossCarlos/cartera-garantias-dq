@@ -199,8 +199,8 @@ estuvieran unidos, ese avalúo aparecería tres veces y **su valor de garantía 
 sumaría tres veces**.
 
 Medido sobre estos datos: los avalúos de abril en colones que tienen al menos
-una incidencia son **309**, con ₡651.670 millones de garantía. Uniendo los dos
-hechos se vuelven **349 filas** y ₡706.848 millones — **₡55.178 millones que no
+una incidencia son **310**, con ₡651.778 millones de garantía. Uniendo los dos
+hechos se vuelven **350 filas** y ₡706.956 millones — **₡55.178 millones que no
 existen**. El error es difícil de ver porque el total sigue pareciendo razonable.
 
 Los dos hechos cuelgan de las mismas dimensiones y se comunican solo a través de
