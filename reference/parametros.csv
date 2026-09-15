@@ -1,0 +1,3 @@
+parametro,valor,unidad,fuente
+tipo_cambio_ordenamiento,510,CRC por USD,"SUPUESTO. Ajustar al tipo de cambio de referencia del BCCR a la fecha de corte. Se usa SOLO para ordenar la lista de trabajo y calcular razones adimensionales, NUNCA para reportar exposicion consolidada: la exposicion se reporta siempre segmentada por moneda."
+capacidad_mensual_revision,150,avaluos por mes,SUPUESTO. Capacidad del equipo de revision. Determina el tamano de la lista de trabajo.

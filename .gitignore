@@ -9,6 +9,7 @@ __pycache__/
 data/output/
 *.duckdb
 *.duckdb.wal
+warehouse/*.duckdb
 
 # Power BI
 *.pbix.tmp

@@ -1,0 +1,4 @@
+orden,criterio,descripcion,casos_revisados,no_confiables_atendidos,exposicion_cubierta_crc,exposicion_cubierta_usd,exposicion_equivalente,no_confiables_en_cartera,pct_no_confiables_cubiertos,veces_vs_criterio_actual,veces_vs_mismo_universo
+1,Por exposición en riesgo,Propuesto: prioriza lo no confiable de mayor saldo,150,140,39489742074.16,81236882.51,80920552154.26,140,100.0,4.18,4.18
+2,"Por antigüedad, cartera completa","Criterio actual: los avalúos más viejos, sin mirar calidad",150,16,897116551.29,36244320.93,19381720225.59,140,11.4,1.0,1.0
+3,"Por antigüedad, solo los marcados","Comparación justa: mismo universo, orden por antigüedad",150,16,897116551.29,36244320.93,19381720225.59,140,11.4,1.0,1.0

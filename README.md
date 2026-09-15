@@ -16,8 +16,8 @@ está respaldada por avalúos confiables, y cuáles conviene atender primero?**
 |---|---|
 | 1 · Fundamentos | Completa |
 | 2 · Datos | Completa |
-| 3 · Validación | En curso |
-| 4 · Modelo | Pendiente |
+| 3 · Validación | Completa |
+| 4 · Modelo | Completa |
 | 5 · Entrega | Pendiente |
 
 ## Documentación
@@ -57,3 +57,21 @@ en `data/output/`. Si las cifras no cuadran, termina con error y no publica.
 
 Qué reglas se aplican lo decide `reference/reglas_datos.csv`, no el código: activar
 R-09 o R-10 es cambiar una celda de ese CSV.
+
+## Construir el modelo
+
+```bash
+python src/construir_almacen.py
+```
+
+Ejecuta los cinco archivos de `sql/` sobre DuckDB, verifica once comprobaciones de
+reconciliación y exporta los marts a `data/marts/` para Power BI. Si alguna
+comprobación no cuadra, el modelo no se publica.
+
+```
+sql/01_staging.sql      tipado y despivoteo de resultados por regla
+sql/02_dimensiones.sql  siete dimensiones con clave subrogada
+sql/03_hechos.sql       fact_garantia y fact_incidencia
+sql/04_marts.sql        exposición, Pareto, evolución, lista de trabajo
+sql/05_control.sql      reconciliación entre capas
+```

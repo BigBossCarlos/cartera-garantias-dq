@@ -1,0 +1,12 @@
+orden,comprobacion,esperado,obtenido,diferencia,resultado
+1,Avalúos: validador = fact_garantia,8000,8000,0,OK
+2,fact_garantia: grano sin duplicados,8000,8000,0,OK
+3,Incidencias: validador = fact_incidencia,1993,1993,0,OK
+4,No confiables: validador = modelo,460,460,0,OK
+5,A revisar: validador = modelo,1220,1220,0,OK
+6,Geografía sin resolver (esperado 0),0,0,0,OK
+7,Tipología sin resolver (esperado 0),0,0,0,OK
+8,Saldo del hecho = saldo de créditos atribuibles,3593576392818,3593576392818,0,OK
+9,Cobertura: avalúos x reglas activas,64000,64000,0,OK
+10,Evolución: identificadores clasificados,4192,4192,0,OK
+11,Incidencias bloqueantes = suma de n_bloquea,489,489,0,OK

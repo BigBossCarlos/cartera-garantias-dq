@@ -250,3 +250,74 @@ La cobertura de R-07 depende directamente de cuántas combinaciones tenga
 casos y el resto del proyecto sigue funcionando. Ampliar el catálogo de rangos es
 la forma de subir esa cobertura, y el tablero debe mostrarla: una regla que solo
 cubre el 85 % de la cartera no puede presentarse como si cubriera todo.
+
+---
+
+## 10. El modelo dimensional
+
+### Tablas
+
+| Tabla | Grano | Filas |
+|---|---|---|
+| `fact_garantia` | Un avalúo en un corte | 8.000 |
+| `fact_incidencia` | Un incumplimiento detectado | ~2.000 |
+| `fact_cobertura_regla` | Una regla en un corte | 16 |
+
+Dimensiones: `dim_corte`, `dim_fecha`, `dim_geografia`, `dim_tipologia`, `dim_perito`, `dim_confiabilidad`, `dim_regla`.
+
+`fact_incidencia` lleva sus **propias** claves a geografía, perito y tipología. No es redundancia: permite filtrar el Pareto de reglas por cantón sin unir las dos tablas de hechos, que es justamente lo que hay que evitar.
+
+`id_avaluo` y `numero_finca` son **dimensiones degeneradas**: identifican la fila y no tienen atributos que describir, así que viven en el hecho sin tabla propia.
+
+Las dimensiones que pueden recibir un valor ausente llevan un miembro `-1` "No informado". R-02 permite que llegue un avalúo sin perito, y ese avalúo debe seguir contándose en la cartera en lugar de desaparecer por un `LEFT JOIN` fallido.
+
+### D-07 · Tipo de cambio de ordenamiento
+
+**Revisa parcialmente a D-03.** La exposición se sigue reportando segmentada por moneda, sin consolidar. Pero la lista de trabajo necesita **un solo orden**: el equipo tiene una capacidad, no dos. Y el 37 % de la cartera está en dólares, así que ignorarlos no es opción.
+
+Se introduce `tipo_cambio_ordenamiento` en `reference/parametros.csv`, usado únicamente para:
+
+- ordenar `mart_lista_trabajo`;
+- calcular razones adimensionales en `mart_comparacion_priorizacion`.
+
+La columna se llama `saldo_equivalente_crc` para que nadie la confunda con una consolidación financiera. **Ningún reporte de exposición la usa.**
+
+### El crédito no siempre es atribuible
+
+Consecuencia directa de R-01, y el puente entre un problema técnico y una cifra que un gerente entiende. Si dos avalúos comparten identificador, no hay forma de saber cuál respalda el crédito:
+
+- atribuirlo a ambos duplicaría el saldo en cualquier suma;
+- atribuirlo a uno al azar sería inventar.
+
+Se deja sin atribuir (`saldo` en NULL, `credito_atribuible = false`) y se reporta en `mart_credito_no_atribuible`, junto con los créditos que quedan huérfanos porque su identificador desapareció del corte.
+
+### Dos detalles de SQL que costaron una corrección
+
+**`IS NOT DISTINCT FROM` en lugar de `=`.** El join entre incidencias y avalúos usa `numero_finca` para desambiguar los pares de R-01. Pero R-02 permite que ese campo llegue vacío, y en SQL `NULL = NULL` es falso. Con `=` se perdían 10 incidencias, todas de avalúos sin número de finca, que son precisamente los más problemáticos. Lo detectó la comprobación 3 del control.
+
+**Agregar antes del `FULL OUTER JOIN`.** `mart_evolucion` agrupa por `(corte, id_avaluo)` antes de unir los dos cortes. Sin ese paso, un identificador que corresponde a dos avalúos multiplicaría filas en el join.
+
+**Dos `string_agg` no comparten orden.** `mart_lista_trabajo` armaba `reglas_incumplidas` con `ORDER BY rule_id` y `detalle` sin cláusula de orden. Cada agregación ordena por su cuenta, así que en las 72 filas con más de una regla el perito leía el motivo de una regla junto al identificador de otra —en el caso comprobado, en orden exactamente inverso—. La corrección pega cada `rule_id` a su propia `condicion_esperada` en un mismo `string_agg` ordenado, y deduplica las incidencias antes de agregar para que el detalle no repita motivos que la lista de reglas sí une.
+
+### Columnas de `mart_lista_trabajo` añadidas para que sea accionable
+
+| Columna | Por qué |
+|---|---|
+| `fecha_valor` | El expediente se busca por fecha y la re-inspección se agenda contra ella. `dias_antiguedad` sola no sirve para eso. |
+| `perito_activo` | No se le puede devolver un avalúo a un perito dado de baja. Hay 5 avalúos en la lista cuyo perito es "No informado". |
+| `responsables` | Quién ejecuta cada corrección, tomado de `dim_regla.responsable`. Sin esto la lista dice qué está mal pero no a quién asignarlo. |
+
+### Diferencia esperada entre el modelo y el ground truth
+
+`mart_evolucion` sigue los avalúos por `id_avaluo`, que es lo único que un analista tiene. El ground truth los sigue por su identidad real. Coinciden salvo en los pares de R-01:
+
+| Categoría | Ground truth | Modelo SQL | Diferencia |
+|---|---|---|---|
+| CORREGIDO | 720 | 708 | −12 |
+| ENTRA_CUMPLIENDO | 192 | 204 | +12 |
+| PERSISTENTE | 360 | 354 | −6 |
+| NUEVO | 120 | 118 | −2 |
+| SALIO | 120 | 118 | −2 |
+| SALIO_CUMPLIENDO | 80 | 82 | +2 |
+
+Con 20 pares en marzo, 12 de ellos corregidos: al corregirse, el segundo avalúo recupera su identificador propio, que nunca apareció en marzo, y por identificador parece una entrada nueva. **No es un error de ninguno de los dos.** Es la consecuencia inevitable de que la clave de negocio esté bajo sospecha, y el proyecto la reporta en lugar de ajustarla.
