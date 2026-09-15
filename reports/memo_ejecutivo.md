@@ -168,7 +168,7 @@ orden se explica en una frase.
 | 4 | AV-2025-000063 | Curridabat | Edificio de oficinas | NO_CONFIABLE | USD | US$9,6 M | R-02 | Coordinación de Calidad |
 | 5 | AV-2024-002074 | Carrillo | Terreno baldío rural | NO_CONFIABLE | USD | US$5,8 M | R-03 | Perito Revisor |
 | 6 | AV-2024-002891 | Talamanca | Terreno baldío rural | NO_CONFIABLE | CRC | ₡2.882,7 M | R-04 | Perito Revisor |
-| 7 | AV-2025-000013 | Escazú | Edificio de oficinas | NO_CONFIABLE | USD | US$5,6 M | R-02, R-08 | Jefe de Garantías, Coordinación de Calidad |
+| 7 | AV-2025-000013 | Escazú | Edificio de oficinas | NO_CONFIABLE | USD | US$5,6 M | R-02, R-08 | Coordinación de Calidad, Jefe de Garantías |
 | 8 | AV-2024-001603 | Santa Ana | Bodega o nave industrial | NO_CONFIABLE | USD | US$5,3 M | R-03, R-04 | Perito Revisor |
 | 9 | AV-2025-002445 | Alajuela | Edificio de oficinas | NO_CONFIABLE | USD | US$4,9 M | R-02 | Coordinación de Calidad |
 | 10 | AV-2024-000942 | Sarapiquí | Finca agrícola | NO_CONFIABLE | CRC | ₡2.176,4 M | R-03, R-07 | Perito Revisor |

@@ -47,7 +47,8 @@ SELECT
               PARTITION BY corte ORDER BY incidencias DESC
               ROWS UNBOUNDED PRECEDING)
           / sum(incidencias) OVER (PARTITION BY corte), 2) AS pct_acumulado,
-    row_number() OVER (PARTITION BY corte ORDER BY incidencias DESC) AS ranking
+    row_number() OVER (PARTITION BY corte
+                       ORDER BY incidencias DESC, rule_id) AS ranking
 FROM por_regla;
 
 
@@ -173,7 +174,8 @@ motivos AS (
            string_agg(i.rule_id || ' ' || coalesce(r.nombre, 'regla sin catalogar')
                       || ': ' || i.condicion_esperada,
                       ' | ' ORDER BY i.rule_id)                    AS detalle,
-           string_agg(DISTINCT r.responsable, ', ')                AS responsables
+           string_agg(DISTINCT r.responsable, ', '
+                      ORDER BY r.responsable)                     AS responsables
     FROM incidencias_unicas i
     LEFT JOIN dim_regla r ON r.rule_id = i.rule_id
     GROUP BY i.corte, i.id_avaluo, i.numero_finca
@@ -191,7 +193,12 @@ candidatos AS (
         m.reglas_incumplidas, m.detalle, m.responsables,
         row_number() OVER (
             ORDER BY d.sk_confiabilidad DESC,                 -- NO_CONFIABLE primero
-                     f.saldo_equivalente_crc DESC NULLS LAST  -- luego mayor exposición
+                     f.saldo_equivalente_crc DESC NULLS LAST, -- luego mayor exposición
+                     -- Desempate estable. 103 de los 480 marcados no tienen
+                     -- crédito atribuido y empatan en saldo 0: sin este criterio
+                     -- DuckDB los ordena distinto en cada corrida y la lista de
+                     -- trabajo cambia sola entre ejecuciones.
+                     f.id_avaluo, f.numero_finca
         ) AS prioridad
     FROM fact_garantia f
     JOIN ultimo u                ON u.corte = f.corte
@@ -230,20 +237,21 @@ base AS (
 -- (1) Criterio propuesto: lo no confiable primero, de mayor a menor exposición
 por_exposicion AS (
     SELECT * FROM base WHERE nivel_confiabilidad <> 'CONFIABLE'
-    ORDER BY sk_confiabilidad DESC, saldo_equivalente_crc DESC NULLS LAST
+    ORDER BY sk_confiabilidad DESC, saldo_equivalente_crc DESC NULLS LAST,
+             id_avaluo, numero_finca
     LIMIT (SELECT n FROM cap)
 ),
 -- (2) Criterio actual: los avalúos más viejos de toda la cartera
 por_antiguedad AS (
     SELECT * FROM base
-    ORDER BY dias_antiguedad DESC NULLS LAST
+    ORDER BY dias_antiguedad DESC NULLS LAST, id_avaluo, numero_finca
     LIMIT (SELECT n FROM cap)
 ),
 -- (3) Comparación justa: mismo universo que (1), pero ordenado por antigüedad.
 -- Aísla el efecto del criterio de orden del efecto de mirar la calidad del dato.
 por_antiguedad_filtrado AS (
     SELECT * FROM base WHERE nivel_confiabilidad <> 'CONFIABLE'
-    ORDER BY dias_antiguedad DESC NULLS LAST
+    ORDER BY dias_antiguedad DESC NULLS LAST, id_avaluo, numero_finca
     LIMIT (SELECT n FROM cap)
 ),
 resumen AS (
