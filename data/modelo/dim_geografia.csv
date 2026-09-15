@@ -1,0 +1,37 @@
+sk_geografia,provincia,canton,distrito,zona,radio_km
+-1,No informado,No informado,No informado,No informado,
+1,Alajuela,Alajuela,Alajuela,GAM_CENTRO,4
+2,Alajuela,Atenas,Atenas,RURAL,8
+3,Alajuela,Grecia,Grecia,CIUDAD_INTERMEDIA,8
+4,Alajuela,San Carlos,Quesada,CIUDAD_INTERMEDIA,10
+5,Alajuela,San Ramón,San Ramón,CIUDAD_INTERMEDIA,8
+6,Alajuela,Upala,Upala,RURAL,20
+7,Cartago,Cartago,Oriental,GAM_CENTRO,3
+8,Cartago,La Unión,Tres Ríos,GAM_PERIFERIA,4
+9,Cartago,Paraíso,Paraíso,GAM_PERIFERIA,6
+10,Cartago,Turrialba,Turrialba,CIUDAD_INTERMEDIA,10
+11,Guanacaste,Carrillo,Sardinal,COSTA,10
+12,Guanacaste,Liberia,Liberia,CIUDAD_INTERMEDIA,8
+13,Guanacaste,Nicoya,Nicoya,CIUDAD_INTERMEDIA,10
+14,Guanacaste,Santa Cruz,Tamarindo,COSTA,8
+15,Heredia,Belén,San Antonio,GAM_CENTRO,3
+16,Heredia,Heredia,Heredia,GAM_CENTRO,3
+17,Heredia,San Rafael,San Rafael,GAM_PERIFERIA,4
+18,Heredia,Santo Domingo,Santo Domingo,GAM_PERIFERIA,3
+19,Heredia,Sarapiquí,Puerto Viejo,RURAL,20
+20,Limón,Limón,Limón,CIUDAD_INTERMEDIA,6
+21,Limón,Pococí,Guápiles,CIUDAD_INTERMEDIA,10
+22,Limón,Talamanca,Cahuita,COSTA,12
+23,Puntarenas,Garabito,Jacó,COSTA,8
+24,Puntarenas,Puntarenas,Puntarenas,CIUDAD_INTERMEDIA,5
+25,Puntarenas,Quepos,Quepos,COSTA,10
+26,San José,Curridabat,Curridabat,GAM_CENTRO,3
+27,San José,Desamparados,Desamparados,GAM_PERIFERIA,4
+28,San José,Escazú,Escazú,GAM_CENTRO,4
+29,San José,Goicoechea,Guadalupe,GAM_PERIFERIA,3
+30,San José,Montes de Oca,San Pedro,GAM_CENTRO,3
+31,San José,Puriscal,Santiago,RURAL,15
+32,San José,Pérez Zeledón,San Isidro de El General,CIUDAD_INTERMEDIA,12
+33,San José,San José,Carmen,GAM_CENTRO,2
+34,San José,Santa Ana,Santa Ana,GAM_CENTRO,4
+35,San José,Tibás,San Juan,GAM_CENTRO,3

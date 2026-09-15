@@ -5,14 +5,27 @@
 -- Las que pueden recibir un valor ausente llevan un miembro -1 "NO INFORMADO":
 -- R-02 permite que llegue un avalúo sin perito, y ese avalúo debe seguir
 -- contándose en la cartera, no desaparecer del modelo por un LEFT JOIN fallido.
+--
+-- Los nombres de mes se resuelven con una lista literal y no con strftime('%B'),
+-- que en DuckDB devuelve inglés sin importar la configuración regional. Estas
+-- etiquetas llegan a los segmentadores del tablero, así que se ven.
 -- =============================================================================
+
+CREATE OR REPLACE MACRO mes_largo(n) AS
+    (['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto',
+      'setiembre', 'octubre', 'noviembre', 'diciembre'])[n];
+
+CREATE OR REPLACE MACRO mes_corto(n) AS
+    (['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago',
+      'set', 'oct', 'nov', 'dic'])[n];
 
 CREATE OR REPLACE TABLE dim_corte AS
 SELECT
     row_number() OVER (ORDER BY corte)                      AS sk_corte,
     corte,
     last_day(TRY_CAST(corte || '-01' AS DATE))              AS fecha_corte,
-    strftime(TRY_CAST(corte || '-01' AS DATE), '%B %Y')     AS etiqueta,
+    mes_largo(month(TRY_CAST(corte || '-01' AS DATE)))
+        || ' ' || year(TRY_CAST(corte || '-01' AS DATE))    AS etiqueta,
     row_number() OVER (ORDER BY corte)                      AS orden
 FROM (SELECT DISTINCT corte FROM stg_avaluos);
 
@@ -29,7 +42,7 @@ SELECT
     month(d)                               AS mes,
     quarter(d)                             AS trimestre,
     strftime(d, '%Y-%m')                   AS anio_mes,
-    strftime(d, '%b %Y')                   AS etiqueta_mes
+    mes_corto(month(d)) || ' ' || year(d)  AS etiqueta_mes
 FROM rango, unnest(generate_series(desde, hasta, INTERVAL 1 DAY)) AS t(d);
 
 INSERT INTO dim_fecha VALUES (-1, NULL, NULL, NULL, NULL, 'No informado', 'No informado');

@@ -1,0 +1,4 @@
+sk_confiabilidad,nivel,etiqueta,accion_sugerida,definicion
+1,CONFIABLE,Confiable,Ninguna,Sin incumplimientos
+2,REVISAR,Revisar,Verificación documental,Solo incumplimientos que no bloquean
+3,NO_CONFIABLE,No confiable,Re-inspección,Al menos un incumplimiento bloqueante

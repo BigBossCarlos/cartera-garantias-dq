@@ -18,7 +18,7 @@ está respaldada por avalúos confiables, y cuáles conviene atender primero?**
 | 2 · Datos | Completa |
 | 3 · Validación | Completa |
 | 4 · Modelo | Completa |
-| 5 · Entrega | Pendiente |
+| 5 · Entrega | En curso — memo y modelo listos, tablero pendiente |
 
 ## Documentación
 
@@ -65,8 +65,16 @@ python src/construir_almacen.py
 ```
 
 Ejecuta los cinco archivos de `sql/` sobre DuckDB, verifica once comprobaciones de
-reconciliación y exporta los marts a `data/marts/` para Power BI. Si alguna
+reconciliación y exporta a CSV el modelo dimensional y los marts. Si alguna
 comprobación no cuadra, el modelo no se publica.
+
+| Salida | Contenido | Para qué |
+|---|---|---|
+| `data/modelo/` | 7 dimensiones y 3 hechos | El modelo de Power BI |
+| `data/marts/` | 9 marts y el control de cifras | Agregados y tablas auxiliares |
+
+Power BI no tiene conector nativo de DuckDB: por eso se exportan los dos niveles
+a CSV en vez de conectar contra la base.
 
 ```
 sql/01_staging.sql      tipado y despivoteo de resultados por regla
@@ -75,3 +83,22 @@ sql/03_hechos.sql       fact_garantia y fact_incidencia
 sql/04_marts.sql        exposición, Pareto, evolución, lista de trabajo
 sql/05_control.sql      reconciliación entre capas
 ```
+
+## Entregar
+
+```bash
+python src/generar_memo.py
+```
+
+Escribe `reports/memo_ejecutivo.md` a partir de los marts. No recalcula nada: toda
+cifra del memo sale de una tabla que ya pasó la reconciliación, y si alguna
+comprobación falla el memo no se publica. Se regenera con los datos, así que
+cambiar la semilla del generador no deja cifras viejas escritas a mano.
+
+El tablero se arma siguiendo [`dashboards/GUIA_POWERBI.md`](dashboards/GUIA_POWERBI.md),
+con las medidas de [`dashboards/medidas_dax.txt`](dashboards/medidas_dax.txt).
+Tres páginas: Exposición, Diagnóstico y Lista de trabajo.
+
+La sección 11 de la guía contrasta cada cifra del tablero contra el memo. Las dos
+salidas vienen del mismo modelo por caminos distintos: si no coinciden, hay un
+error en el armado.

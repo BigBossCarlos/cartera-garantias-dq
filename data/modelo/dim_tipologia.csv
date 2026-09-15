@@ -1,0 +1,11 @@
+sk_tipologia,tipologia,requiere_construccion,cobertura_min,cobertura_max,moneda_habitual
+-1,No informado,NO_APLICA,,,
+1,Apartamento,SI,0.3,3.0,USD
+2,Bodega o nave industrial,SI,0.2,0.7,USD
+3,Casa de habitación,SI,0.1,0.7,CRC
+4,Condominio horizontal,SI,0.2,0.8,USD
+5,Edificio de oficinas,SI,0.5,6.0,USD
+6,Finca agrícola,OPCIONAL,0.0,0.15,CRC
+7,Local comercial,SI,0.3,2.0,CRC
+8,Terreno baldío rural,NO,0.0,0.0,CRC
+9,Terreno baldío urbano,NO,0.0,0.0,CRC

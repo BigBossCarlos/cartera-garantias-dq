@@ -1,9 +1,9 @@
 corte,moneda,motivo,creditos,saldo_sin_atribuir
 2026-03,CRC,Identificador compartido por varios avalúos,11,9000726909.11
-2026-04,CRC,Identificador compartido por varios avalúos,4,19104292783.27
+2026-03,CRC,Sin avalúo correspondiente en el corte,12,15240165619.67
 2026-03,USD,Identificador compartido por varios avalúos,7,8904323.82
+2026-03,USD,Sin avalúo correspondiente en el corte,5,1006954.49
+2026-04,CRC,Identificador compartido por varios avalúos,4,19104292783.27
+2026-04,CRC,Sin avalúo correspondiente en el corte,5,2968252974.02
 2026-04,USD,Identificador compartido por varios avalúos,3,1332811.41
 2026-04,USD,Sin avalúo correspondiente en el corte,3,543760.68
-2026-04,CRC,Sin avalúo correspondiente en el corte,5,2968252974.02
-2026-03,USD,Sin avalúo correspondiente en el corte,5,1006954.49
-2026-03,CRC,Sin avalúo correspondiente en el corte,12,15240165619.67

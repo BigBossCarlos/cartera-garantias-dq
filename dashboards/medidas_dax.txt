@@ -1,0 +1,474 @@
+===============================================================================
+MEDIDAS DAX — cartera-garantias-dq
+===============================================================================
+
+Se pegan en Power BI Desktop una por una: clic derecho sobre la tabla _Medidas
+> Nueva medida, se borra lo que aparece y se pega el bloque completo, nombre
+incluido. NO pegar todo el archivo de una vez.
+
+Antes de empezar: Inicio > Escribir datos, una columna `Auxiliar` con un `1`,
+nombre de tabla `_Medidas`, Cargar. Al terminar, ocultar `Auxiliar`.
+
+Orden: pegar de arriba hacia abajo. El grupo 2 usa medidas del grupo 1, el 3
+usa las del 2, y así. Si se pega fuera de orden, DAX no reconoce el nombre.
+
+-------------------------------------------------------------------------------
+POR QUÉ NO HAY UNA MEDIDA "SALDO" A SECAS
+-------------------------------------------------------------------------------
+
+El proyecto no consolida cartera entre colones y dólares. Y en este modelo no
+existe una dimensión de moneda compartida: `moneda` es una columna de
+`fact_garantia`, y `fact_incidencia` no la tiene, porque un incumplimiento es un
+hecho de calidad y no de dinero.
+
+Consecuencia: un segmentador de moneda filtraría los importes pero NO las
+incidencias, y la página parecería filtrada cuando solo lo estaría a medias.
+
+Por eso cada importe tiene su medida por moneda —`Saldo CRC`, `Saldo USD`— y no
+se usa segmentador de moneda. Es más medidas, pero cada cifra dice en su nombre
+en qué moneda está y no hay forma de sumar peras con manzanas por accidente.
+
+-------------------------------------------------------------------------------
+GRUPO 1 — BASE
+-------------------------------------------------------------------------------
+
+Avalúos =
+COUNTROWS ( fact_garantia )
+
+
+Avalúos con crédito =
+CALCULATE ( COUNTROWS ( fact_garantia ), fact_garantia[tiene_credito] = TRUE () )
+
+
+Avalúos no confiables =
+CALCULATE ( [Avalúos], dim_confiabilidad[nivel] = "NO_CONFIABLE" )
+
+
+Avalúos con incumplimiento =
+COUNTROWS (
+    FILTER (
+        fact_garantia,
+        fact_garantia[n_bloquea] + fact_garantia[n_revisa] > 0
+    )
+)
+
+
+Tasa de incumplimiento =
+DIVIDE ( [Avalúos con incumplimiento], [Avalúos] )
+
+
+Antigüedad mediana =
+MEDIAN ( fact_garantia[dias_antiguedad] )
+
+-------------------------------------------------------------------------------
+GRUPO 2 — IMPORTES, SEPARADOS POR MONEDA
+-------------------------------------------------------------------------------
+
+Saldo CRC =
+CALCULATE ( SUM ( fact_garantia[saldo] ), fact_garantia[moneda] = "CRC" )
+
+
+Saldo USD =
+CALCULATE ( SUM ( fact_garantia[saldo] ), fact_garantia[moneda] = "USD" )
+
+
+Valor garantía CRC =
+CALCULATE ( SUM ( fact_garantia[valor_garantia] ), fact_garantia[moneda] = "CRC" )
+
+
+Valor garantía USD =
+CALCULATE ( SUM ( fact_garantia[valor_garantia] ), fact_garantia[moneda] = "USD" )
+
+
+Exposición no confiable CRC =
+CALCULATE (
+    SUM ( fact_garantia[exposicion_no_confiable] ),
+    fact_garantia[moneda] = "CRC"
+)
+
+
+Exposición no confiable USD =
+CALCULATE (
+    SUM ( fact_garantia[exposicion_no_confiable] ),
+    fact_garantia[moneda] = "USD"
+)
+
+
+Saldo equivalente (ordenamiento) =
+SUM ( fact_garantia[saldo_equivalente_crc] )
+
+
+-- OJO con esta última. Convierte los dólares a colones con el tipo de cambio
+-- supuesto de reference/parametros.csv (510), y existe SOLO para poder ordenar
+-- una lista que mezcla monedas y para ejes de tamaño relativo. NUNCA se presenta
+-- como saldo consolidado de la cartera. Todo título que la use debe decir
+-- "equivalente, tipo de cambio supuesto".
+
+-------------------------------------------------------------------------------
+GRUPO 3 — PÁGINA 1: EXPOSICIÓN CON RESPALDO CONFIABLE
+-------------------------------------------------------------------------------
+
+Saldo confiable CRC =
+CALCULATE ( [Saldo CRC], dim_confiabilidad[nivel] = "CONFIABLE" )
+
+
+Saldo confiable USD =
+CALCULATE ( [Saldo USD], dim_confiabilidad[nivel] = "CONFIABLE" )
+
+
+% exposición con respaldo confiable (CRC) =
+DIVIDE ( [Saldo confiable CRC], [Saldo CRC] )
+
+
+% exposición con respaldo confiable (USD) =
+DIVIDE ( [Saldo confiable USD], [Saldo USD] )
+
+
+-- Es el KPI principal del proyecto: qué proporción del saldo está respaldada
+-- por avalúos sin incumplimientos. Se calcula sobre el saldo ATRIBUIBLE a
+-- garantías; el crédito que no se pudo atribuir está aparte, en
+-- mart_credito_no_atribuible. Conviene decirlo en el subtítulo de la tarjeta.
+
+
+Tasa de incumplimiento del corte anterior =
+VAR OrdenActual = SELECTEDVALUE ( dim_corte[orden] )
+RETURN
+    CALCULATE (
+        [Tasa de incumplimiento],
+        ALL ( dim_corte ),
+        dim_corte[orden] = OrdenActual - 1
+    )
+
+
+Variación de la tasa (pp) =
+VAR Actual = [Tasa de incumplimiento]
+VAR Anterior = [Tasa de incumplimiento del corte anterior]
+RETURN
+    IF ( ISBLANK ( Anterior ), BLANK (), ( Actual - Anterior ) * 100 )
+
+
+-- "pp" = puntos porcentuales. En el primer corte queda vacía a propósito: no
+-- hay corte anterior con qué comparar. Bajar de 30 % a 12 % son -18 pp, que no
+-- es lo mismo que una reducción relativa del 60 %. El título debe decir "pp".
+
+
+LTV por punto =
+AVERAGE ( fact_garantia[ltv] )
+
+
+-- Para el gráfico de dispersión. Con id_fila_visual en Detalles, cada punto es
+-- un avalúo y el promedio de un solo valor es ese valor. Sin esa columna de
+-- detalle, Power BI agrega toda la cartera en un puñado de puntos.
+
+-------------------------------------------------------------------------------
+GRUPO 4 — COLORES CONDICIONALES DE LAS TARJETAS
+-------------------------------------------------------------------------------
+
+Los umbrales 90 % y 80 % son ILUSTRATIVOS. No son metas acordadas con nadie.
+Si se presenta el tablero, conviene decirlo o quitar los colores.
+
+Se aplican con: Formato del visual > fx > Formato por = Valor de campo.
+
+
+Color KPI confiabilidad CRC =
+VAR v = [% exposición con respaldo confiable (CRC)]
+RETURN
+    SWITCH (
+        TRUE (),
+        ISBLANK ( v ), "#9E9E9E",
+        v >= 0.90, "#2E7D32",
+        v >= 0.80, "#F9A825",
+        "#C62828"
+    )
+
+
+Color KPI confiabilidad USD =
+VAR v = [% exposición con respaldo confiable (USD)]
+RETURN
+    SWITCH (
+        TRUE (),
+        ISBLANK ( v ), "#9E9E9E",
+        v >= 0.90, "#2E7D32",
+        v >= 0.80, "#F9A825",
+        "#C62828"
+    )
+
+
+Color variación =
+VAR v = [Variación de la tasa (pp)]
+RETURN
+    SWITCH (
+        TRUE (),
+        ISBLANK ( v ), "#9E9E9E",
+        v < 0, "#2E7D32",
+        v > 0, "#C62828",
+        "#9E9E9E"
+    )
+
+
+-- En "Variación de la tasa" lo bueno es el número negativo: la tasa de
+-- incumplimiento bajó. Por eso el verde va en v < 0.
+
+-------------------------------------------------------------------------------
+GRUPO 5 — PÁGINA 2: REGLAS E INCIDENCIAS
+-------------------------------------------------------------------------------
+
+Viven en fact_incidencia, el segundo hecho. Comparte dimensiones con
+fact_garantia y NUNCA se une con él: un avalúo que incumple tres reglas cuenta
+tres incidencias sin que su valor de garantía se sume tres veces.
+
+
+Incidencias =
+SUM ( fact_incidencia[incidencias] )
+
+
+Avalúos afectados =
+DISTINCTCOUNT ( fact_incidencia[id_avaluo] )
+
+
+% de incidencias =
+DIVIDE ( [Incidencias], CALCULATE ( [Incidencias], ALLSELECTED ( dim_regla ) ) )
+
+
+% acumulado de incidencias =
+VAR Total =
+    CALCULATE ( [Incidencias], ALLSELECTED ( dim_regla[rule_id] ) )
+VAR IncidenciasDeEstaRegla = [Incidencias]
+VAR TodasLasReglas =
+    ADDCOLUMNS (
+        ALLSELECTED ( dim_regla[rule_id] ),
+        "@inc", CALCULATE ( [Incidencias] )
+    )
+VAR Acumulado =
+    SUMX (
+        FILTER ( TodasLasReglas, [@inc] >= IncidenciasDeEstaRegla ),
+        [@inc]
+    )
+RETURN
+    DIVIDE ( Acumulado, Total )
+
+
+-- Es la línea del Pareto. Conserva los filtros de corte y zona, y da el mismo
+-- acumulado a reglas empatadas en incidencias. Hay que ordenar el eje por
+-- [Incidencias] descendente: sin ese orden la línea no sube de forma monótona
+-- y el Pareto deja de leerse.
+
+
+Tasa global de referencia =
+CALCULATE ( [Tasa de incumplimiento], ALL ( dim_perito ) )
+
+
+-- La línea horizontal del gráfico por perito. Es la tasa de TODA la cartera del
+-- corte y zona seleccionados, ponderada por cantidad de avalúos. No es el
+-- promedio simple de los porcentajes de cada perito: eso le daría el mismo peso
+-- a un perito con 400 avalúos que a uno con 12.
+
+
+Cobertura de reglas =
+DIVIDE (
+    SUM ( fact_cobertura_regla[cumple] ) + SUM ( fact_cobertura_regla[incumple] ),
+    SUM ( fact_cobertura_regla[avaluos] )
+)
+
+
+Evaluaciones no aplicables =
+SUM ( fact_cobertura_regla[no_aplica] )
+
+
+-- Qué proporción de los avalúos del corte evaluó realmente cada regla. R-07 baja
+-- a ~60 % porque hay tipologías sin terreno valorado: esos casos son NO_APLICA,
+-- no CUMPLE. Una regla que no aplica no es una regla que pasó.
+--
+-- fact_cobertura_regla ya viene agregado por corte y regla, así que esta matriz
+-- responde a esos dos filtros pero NO a zona, perito ni tipología. Es correcto,
+-- no es una relación rota. Poner "Cobertura global del corte seleccionado" en
+-- el título.
+
+-------------------------------------------------------------------------------
+GRUPO 6 — PÁGINA 2: EVOLUCIÓN ENTRE LOS DOS CORTES
+-------------------------------------------------------------------------------
+
+Salen de mart_evolucion, que se carga SIN relaciones. Su grano es un
+identificador visto en los dos cortes a la vez, así que no cuelga de dim_corte:
+relacionarla produciría un filtro sin sentido. Estos visuales no responden a las
+segmentaciones de corte ni de zona, y hay que escribirlo en la página.
+
+
+Identificadores en la categoría =
+COUNTROWS ( mart_evolucion )
+
+
+Avalúos corregidos =
+CALCULATE ( COUNTROWS ( mart_evolucion ), mart_evolucion[categoria] = "CORREGIDO" )
+
+
+Avalúos persistentes =
+CALCULATE ( COUNTROWS ( mart_evolucion ), mart_evolucion[categoria] = "PERSISTENTE" )
+
+
+Avalúos nuevos con incumplimiento =
+CALCULATE ( COUNTROWS ( mart_evolucion ), mart_evolucion[categoria] = "NUEVO" )
+
+
+Avalúos que salieron incumpliendo =
+CALCULATE ( COUNTROWS ( mart_evolucion ), mart_evolucion[categoria] = "SALIO" )
+
+
+Tasa de persistencia =
+DIVIDE (
+    [Avalúos persistentes],
+    [Avalúos persistentes] + [Avalúos corregidos]
+)
+
+
+% de salidas del incumplimiento por corrección =
+DIVIDE (
+    [Avalúos corregidos],
+    [Avalúos corregidos] + [Avalúos que salieron incumpliendo]
+)
+
+
+-- De los avalúos que dejaron de figurar como incumplidores, qué parte fue por
+-- corrección real y qué parte porque salieron de la cartera. NO mide qué parte
+-- de la baja de la tasa causó la gestión: la tasa también depende de las
+-- entradas y del denominador.
+
+-------------------------------------------------------------------------------
+GRUPO 7 — PÁGINA 3: LISTA DE TRABAJO
+-------------------------------------------------------------------------------
+
+Casos en la lista del mes =
+CALCULATE (
+    COUNTROWS ( mart_lista_trabajo ),
+    mart_lista_trabajo[entra_este_mes] = TRUE ()
+)
+
+
+Casos pendientes fuera de la lista =
+CALCULATE (
+    COUNTROWS ( mart_lista_trabajo ),
+    mart_lista_trabajo[entra_este_mes] = FALSE ()
+)
+
+
+Casos no confiables en la lista =
+CALCULATE (
+    COUNTROWS ( mart_lista_trabajo ),
+    mart_lista_trabajo[entra_este_mes] = TRUE (),
+    mart_lista_trabajo[nivel_confiabilidad] = "NO_CONFIABLE"
+)
+
+
+Capacidad mensual =
+MAXX (
+    FILTER ( parametros, parametros[parametro] = "capacidad_mensual_revision" ),
+    VALUE ( parametros[valor] )
+)
+
+
+Meses de rezago =
+DIVIDE (
+    [Casos en la lista del mes] + [Casos pendientes fuera de la lista],
+    [Capacidad mensual]
+)
+
+
+-- Requiere importar reference/parametros.csv como tabla `parametros` (ver la
+-- guía, paso 4). Se hace así para que el supuesto de capacidad viva en el
+-- modelo y se vea, en vez de quedar como un 150 escondido dentro de una
+-- fórmula.
+--
+-- Es una razón de volumen sobre cupo: cuántos meses tomaría atender lo marcado
+-- al ritmo actual. NO mide antigüedad real del atraso ni contempla los casos
+-- nuevos que entren. Titular "Meses de carga estimada con el cupo actual".
+
+
+Cobertura de priorización =
+DIVIDE ( MAX ( mart_comparacion_priorizacion[pct_no_confiables_cubiertos] ), 100 )
+
+
+-- El CSV guarda 100.0 queriendo decir 100 %. Sin dividir entre 100, el formato
+-- de porcentaje de Power BI mostraría 10 000 %.
+
+
+Múltiplo de cobertura =
+MAX ( mart_comparacion_priorizacion[veces_vs_criterio_actual] )
+
+
+Titular del múltiplo =
+"Priorizar por exposición cubre "
+    & FORMAT ( [Múltiplo de cobertura], "0.00" )
+    & " veces más saldo que priorizar por antigüedad, con la misma capacidad."
+
+-------------------------------------------------------------------------------
+GRUPO 8 — CONTROL DE CIFRAS (va a la vista, no a un log)
+-------------------------------------------------------------------------------
+
+Comprobaciones =
+COUNTROWS ( control_almacen )
+
+
+Comprobaciones fallidas =
+COUNTROWS ( FILTER ( control_almacen, control_almacen[resultado] <> "OK" ) ) + 0
+
+
+Estado del modelo =
+IF (
+    [Comprobaciones fallidas] = 0,
+    "MODELO CONCILIADO — " & [Comprobaciones] & " de " & [Comprobaciones] & " comprobaciones OK",
+    [Comprobaciones fallidas] & " COMPROBACIONES NO CUADRAN"
+)
+
+
+-- El "+ 0" fuerza un cero en vez de BLANK cuando no hay filas que fallen. Sin
+-- eso la tarjeta quedaría vacía justo en el caso bueno, que es el que hay que
+-- poder mostrar.
+--
+-- No sumar las columnas esperado/obtenido entre comprobaciones: son unidades
+-- distintas (avalúos, incidencias, colones). Desactivar totales en esa tabla.
+
+===============================================================================
+FORMATOS
+===============================================================================
+
+Se fija seleccionando la medida > pestaña Herramientas de medidas > Formato.
+
+  Avalúos, Avalúos con crédito, Avalúos no confiables,
+  Avalúos con incumplimiento, Incidencias, Avalúos afectados,
+  Identificadores en la categoría, Avalúos corregidos / persistentes /
+  nuevos / que salieron, Casos en la lista del mes, Casos pendientes
+  fuera de la lista, Casos no confiables en la lista, Comprobaciones,
+  Comprobaciones fallidas, Capacidad mensual ......... Número entero, separador de miles
+
+  Saldo CRC, Valor garantía CRC,
+  Exposición no confiable CRC ....................... Número decimal, 0 decimales, título con ₡
+
+  Saldo USD, Valor garantía USD,
+  Exposición no confiable USD ....................... Número decimal, 0 decimales, título con US$
+
+  Saldo equivalente (ordenamiento) .................. Número decimal, 0 decimales, título con "equivalente"
+
+  % exposición con respaldo confiable (CRC) / (USD),
+  Tasa de incumplimiento, Tasa global de referencia,
+  Tasa de persistencia, Cobertura de reglas,
+  Cobertura de priorización,
+  % de incidencias, % acumulado de incidencias,
+  % de salidas del incumplimiento por corrección,
+  LTV por punto ..................................... Porcentaje, 1 decimal
+
+  Variación de la tasa (pp) ......................... Número decimal, 1 decimal, título con "pp"
+
+  Antigüedad mediana ................................ Número entero, título "días"
+
+  Meses de rezago ................................... Número decimal, 1 decimal
+
+  Múltiplo de cobertura ............................. Número decimal, 2 decimales
+
+  Color KPI confiabilidad CRC / USD, Color variación,
+  Estado del modelo, Titular del múltiplo ........... Texto (sin formato numérico)
+
+Sobre el símbolo de moneda: se puede usar el formato Moneda, pero es más seguro
+usar Número y poner ₡ o US$ en el TÍTULO del visual. Así nunca aparece un
+símbolo de colones sobre una cifra en dólares.
+
+===============================================================================
